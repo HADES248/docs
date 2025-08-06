@@ -1,0 +1,79 @@
+---
+title: Block/Unblock User
+---
+## Overview
+* **What:** Allow users to block, unblock, and delete conversations from within the UI.
+* **Why:** These actions empower users to control their chat experience—removing unwanted conversations and contacts.
+* **Result:** A user can block a contact, unblock them, or delete the chat entirely with proper feedback and UI update.
+## Prerequisites
+* CometChat SDK v4.x or later
+* React project setup with CometChat UI Kit
+* Toast/confirmation UI components (e.g., CometChatConfirmDialog)
+
+## Components
+| Component / Class                     | Role                                                                 |
+|--------------------------------------|----------------------------------------------------------------------|
+| `CometChatUserDetails`                   | Displays user details and available actions              |
+| `CometChatConfirmDialog`                    | Renders confirmation prompts for block/delete          |
+| `CometChatUserEvents`                | Emits block/unblock events            |
+| `CometChatConversationEvents`                | Emits conversation deletion event                            |
+## Integration Steps
+### Install & Import Dependencies
+**Goal:** Import the component and its dependencies
+```tsx
+import { CometChatConfirmDialog } from '@cometchat/chat-uikit-react';
+```
+**File reference:**\
+[`CometChatHome.tsx`](https://github.com/cometchat/cometchat-uikit-react/blob/v6/sample-app/src/components/CometChatHome/CometChatHome.tsx)
+**Why:** Required to list UI in your screen.
+### Render UI 
+**Goal:** Render the UI for Blocking.
+```tsx
+<CometChatConfirmDialog
+  title={getLocalizedString('block_contact')}
+  messageText={getLocalizedString('confirm_block_contact')}
+  confirmButtonText={getLocalizedString('user_details_block')}
+  onCancelClick={() => {
+    setShowBlockUserDialog(!showBlockUserDialog);
+  }}
+  onSubmitClick={onBlockUserClicked}
+/>
+```
+**File reference:**\
+[`CometChatHome.tsx`](https://github.com/cometchat/cometchat-uikit-react/blob/v6/sample-app/src/components/CometChatHome/CometChatHome.tsx)
+**Why:** Minimal integration to start showing users
+### User Blocking Configuration
+**Goal:** Core functionality to Block/Unblock User.
+```tsx
+const ccUserBlocked = CometChatUserEvents.ccUserBlocked.subscribe((blockedUser) => {
+  if (blockedUser.getBlockedByMe()) {
+    setShowComposer(false);
+  }
+  updateUserAfterBlockUnblock(blockedUser);
+});
+const ccUserUnblocked = CometChatUserEvents.ccUserUnblocked.subscribe((unBlockedUser) => {
+  if (!unBlockedUser.getBlockedByMe()) {
+    setShowComposer(true);
+  }
+  updateUserAfterBlockUnblock(unBlockedUser);
+});
+```
+**File reference:**\
+[`CometChatHome.tsx`](https://github.com/cometchat/cometchat-uikit-react/blob/v6/sample-app/src/components/CometChatHome/CometChatHome.tsx)
+**Why:** Provides the functionality to block & Unblock users.
+## Error Handling & Blocked-User Handling
+* Show toast feedback on success/failure
+* Disable status and update UI for blocked users
+* Properly catch and log deletion errors
+## Summary / Feature Matrix
+| Feature       | Component / Method                                    |
+| ------------- | ----------------------------------------------------- |
+| `Block user`    | CometChat.blockUsers([UID])                         |
+| `Unblock user`  | CometChat.unblockUsers([UID])                       |
+| `Delete chat`   | CometChat.deleteConversation(UID, 'user')           |
+| `Event updates` | CometChatUserEvents / CometChatConversationEvents |
+
+
+## Next Steps & Further Reading
+* **Full Sample App:**\
+  [https://github.com/cometchat/cometchat-uikit-react](https://github.com/cometchat/cometchat-uikit-react)
